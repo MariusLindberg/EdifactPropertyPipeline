@@ -324,12 +324,26 @@ namespace org.skuzznet
 
                 #endregion
 
-                // Set the identificators
-                inmsg.Context.Promote("DestinationPartySenderIdentifier", _edifactPropertyNamespace,
-                    inmsg.Context.Read(_senderId, _propertyNameSpace));
+                // Set the identificators. Make sure to set " " if missing to get property promoted (will make Biztalk fail the file on missing party)
+                if (string.IsNullOrEmpty((string)inmsg.Context.Read(_senderId, _propertyNameSpace)))
+                {
+                    inmsg.Context.Promote("DestinationPartySenderIdentifier", _edifactPropertyNamespace, " ");
+                }
+                else
+                {
+                    inmsg.Context.Promote("DestinationPartySenderIdentifier", _edifactPropertyNamespace,
+                        inmsg.Context.Read(_senderId, _propertyNameSpace));
+                }
 
-                inmsg.Context.Promote("DestinationPartyReceiverIdentifier", _edifactPropertyNamespace,
-                    inmsg.Context.Read(_receiverId, _propertyNameSpace));
+                if (string.IsNullOrEmpty((string)inmsg.Context.Read(_receiverId, _propertyNameSpace)))
+                {
+                    inmsg.Context.Promote("DestinationPartyReceiverIdentifier", _edifactPropertyNamespace, " ");
+                }
+                else
+                {
+                    inmsg.Context.Promote("DestinationPartyReceiverIdentifier", _edifactPropertyNamespace,
+                        inmsg.Context.Read(_receiverId, _propertyNameSpace));
+                }
 
                 // If no qualifier is set in pipeline use " " since that will resolve as <no qualifier> in Biztalk.
                 if (string.IsNullOrEmpty(_senderIdQualifier))
@@ -353,6 +367,7 @@ namespace org.skuzznet
                     inmsg.Context.Promote("DestinationPartyReceiverQualifier", _edifactPropertyNamespace, " ");
                 else
                 {
+                    // If no value is found on property set space as value (<No qualifier>)
                     if (string.IsNullOrEmpty((string)inmsg.Context.Read(_receiverIdQualifier, _propertyNameSpace)))
                     {
                         inmsg.Context.Promote("DestinationPartyReceiverQualifier", _edifactPropertyNamespace, " ");
