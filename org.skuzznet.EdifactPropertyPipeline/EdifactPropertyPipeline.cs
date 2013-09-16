@@ -18,7 +18,7 @@ namespace org.skuzznet
     
     [ComponentCategory(CategoryTypes.CATID_PipelineComponent)]
     [System.Runtime.InteropServices.Guid("12230dcb-ae72-49f4-aac7-c3d36ef5a8d2")]
-    [ComponentCategory(CategoryTypes.CATID_Encoder)]
+    [ComponentCategory(CategoryTypes.CATID_Any)]
     public class EdifactPropertyPipeline : Microsoft.BizTalk.Component.Interop.IComponent, IBaseComponent, IPersistPropertyBag, IComponentUI
     {
         
