@@ -1,7 +1,7 @@
 # EdifactPropertyPipeline #
 
 Biztalk pipeline that will set UNB properties based on promoted properties in inbound message to pipeline. The pipeline will always promote the properties even if it does not find the promoted values from the input message. This is because
-the expected behavior of the pipeline is to fail the file on missing EDI party.
+the expected behavior of the pipeline is that messages should fail in Biztalk if no party is defined that matches the promoted values.
 
 If no value is found for EDI qualifiers the promoted property will be set to " " (the same as <Not Valued> in the Biztalk console for EDI party configuration.
 
