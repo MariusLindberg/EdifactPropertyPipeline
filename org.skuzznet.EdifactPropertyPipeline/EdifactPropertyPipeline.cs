@@ -290,9 +290,6 @@ namespace org.skuzznet
         /// </remarks>
         public Microsoft.BizTalk.Message.Interop.IBaseMessage Execute(Microsoft.BizTalk.Component.Interop.IPipelineContext pc, Microsoft.BizTalk.Message.Interop.IBaseMessage inmsg)
         {
-            if (string.IsNullOrEmpty(_receiverId) || string.IsNullOrEmpty(_senderId))
-                  return inmsg;
-
             #region Copy input stream
 
             // Biztalk will not do property promotion in time if we do not touch the stream. Make a copy and write it back.
