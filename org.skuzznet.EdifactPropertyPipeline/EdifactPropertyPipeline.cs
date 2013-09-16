@@ -293,6 +293,9 @@ namespace org.skuzznet
             if (string.IsNullOrEmpty(_receiverId) || string.IsNullOrEmpty(_senderId))
                   return inmsg;
 
+            #region Copy input stream
+
+            // Biztalk will not do property promotion in time if we do not touch the stream. Make a copy and write it back.
             try
             {
                 IBaseMessagePart bodyPart = inmsg.BodyPart;
@@ -318,6 +321,8 @@ namespace org.skuzznet
                         inmsg.BodyPart.Data = ms;
                     }
                 }
+
+                #endregion
 
                 // Set the identificators
                 inmsg.Context.Promote("DestinationPartySenderIdentifier", _edifactPropertyNamespace,
