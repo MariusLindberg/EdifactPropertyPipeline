@@ -4,7 +4,7 @@ Biztalk pipeline that will set UNB properties based on promoted properties in in
 
 ## Usage: ##
 
-Put pipeline component in "Encode" stage of pipeline. EDI assembler must be put in the assemble stage. 
+Put pipeline component in "Pre-Assemble" stage of a send pipeline. EDI assembler must be put in the assemble stage. 
 
 **Properties to set in pipeline:**
 
