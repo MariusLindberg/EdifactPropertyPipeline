@@ -335,16 +335,34 @@ namespace org.skuzznet
                 if (string.IsNullOrEmpty(_senderIdQualifier))
                     inmsg.Context.Promote("DestinationPartySenderQualifier", _edifactPropertyNamespace, " ");
                 else
+                {
+                    // If no value is found on property set space as value (<No qualifier>)
+                    if(string.IsNullOrEmpty((string) inmsg.Context.Read(_senderIdQualifier, _propertyNameSpace)))
+                    {
+                        inmsg.Context.Promote("DestinationPartySenderQualifier", _edifactPropertyNamespace, " ");
+                    }
+                    else
+                    {
                     inmsg.Context.Promote("DestinationPartySenderQualifier", _edifactPropertyNamespace,
                         inmsg.Context.Read(_senderIdQualifier, _propertyNameSpace));
+                    }
+                }
 
                 // If no qualifier is set in pipeline use " " since that will resolve as <no qualifier> in Biztalk.
                 if (string.IsNullOrEmpty(_receiverIdQualifier))
                     inmsg.Context.Promote("DestinationPartyReceiverQualifier", _edifactPropertyNamespace, " ");
                 else
-                    inmsg.Context.Promote("DestinationPartyReceiverQualifier", _edifactPropertyNamespace,
-                        inmsg.Context.Read(_receiverIdQualifier, _propertyNameSpace));
-
+                {
+                    if (string.IsNullOrEmpty((string)inmsg.Context.Read(_receiverIdQualifier, _propertyNameSpace)))
+                    {
+                        inmsg.Context.Promote("DestinationPartyReceiverQualifier", _edifactPropertyNamespace, " ");
+                    }
+                    else
+                    {
+                        inmsg.Context.Promote("DestinationPartyReceiverQualifier", _edifactPropertyNamespace,
+                            inmsg.Context.Read(_receiverIdQualifier, _propertyNameSpace));
+                    }
+                }
                 return inmsg;
             }
             catch
