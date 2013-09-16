@@ -13,17 +13,18 @@ namespace org.skuzznet
     using Microsoft.BizTalk.Component.Interop;
     using Microsoft.BizTalk.Component;
     using Microsoft.BizTalk.Messaging;
+    using Microsoft.BizTalk.Streaming;
     
     
     [ComponentCategory(CategoryTypes.CATID_PipelineComponent)]
     [System.Runtime.InteropServices.Guid("12230dcb-ae72-49f4-aac7-c3d36ef5a8d2")]
-    [ComponentCategory(CategoryTypes.CATID_Any)]
+    [ComponentCategory(CategoryTypes.CATID_Encoder)]
     public class EdifactPropertyPipeline : Microsoft.BizTalk.Component.Interop.IComponent, IBaseComponent, IPersistPropertyBag, IComponentUI
     {
         
         private System.Resources.ResourceManager resourceManager = new System.Resources.ResourceManager("org.skuzznet.EdifactPropertyPipeline", Assembly.GetExecutingAssembly());
 
-        private string _edifactPropertyNamespace = "http://schemas.microsoft.com/BizTalk/2006/edi-properties";
+        private string _edifactPropertyNamespace = "http://schemas.microsoft.com/Edi/PropertySchema";
 
         private string _senderId;
         
@@ -290,38 +291,63 @@ namespace org.skuzznet
         public Microsoft.BizTalk.Message.Interop.IBaseMessage Execute(Microsoft.BizTalk.Component.Interop.IPipelineContext pc, Microsoft.BizTalk.Message.Interop.IBaseMessage inmsg)
         {
             if (string.IsNullOrEmpty(_receiverId) || string.IsNullOrEmpty(_senderId))
-                return inmsg;
+                  return inmsg;
 
             try
             {
+                IBaseMessagePart bodyPart = inmsg.BodyPart;
+
+                if (bodyPart != null)
+                {
+                    Stream originalStream = bodyPart.GetOriginalDataStream();
+
+                    if (originalStream != null)
+                    {
+                        byte[] buffer = new Byte[1024];
+                        MemoryStream outStream = new MemoryStream();
+                        int bytesRead = 1024;
+                        while (bytesRead != 0)
+                        {
+                            bytesRead = originalStream.Read(buffer, 0, buffer.Length);
+                            outStream.Write(buffer, 0, bytesRead);
+                        }
+
+                        byte[] buff = outStream.GetBuffer();
+                        MemoryStream ms = new MemoryStream(buff);
+                        ms.Position = 0;
+                        inmsg.BodyPart.Data = ms;
+                    }
+                }
+
                 // Set the identificators
-                inmsg.Context.Promote("UNB2_1", _edifactPropertyNamespace,
+                inmsg.Context.Promote("DestinationPartySenderIdentifier", _edifactPropertyNamespace,
                     inmsg.Context.Read(_senderId, _propertyNameSpace));
 
-                inmsg.Context.Promote("UNB3_1", _edifactPropertyNamespace,
+                inmsg.Context.Promote("DestinationPartyReceiverIdentifier", _edifactPropertyNamespace,
                     inmsg.Context.Read(_receiverId, _propertyNameSpace));
 
                 // If no qualifier is set in pipeline use " " since that will resolve as <no qualifier> in Biztalk.
                 if (string.IsNullOrEmpty(_senderIdQualifier))
-                    inmsg.Context.Promote("UNB2_2", _edifactPropertyNamespace, " ");
+                    inmsg.Context.Promote("DestinationPartySenderQualifier", _edifactPropertyNamespace, " ");
                 else
-                    inmsg.Context.Promote("UNB2_2", _edifactPropertyNamespace,
+                    inmsg.Context.Promote("DestinationPartySenderQualifier", _edifactPropertyNamespace,
                         inmsg.Context.Read(_senderIdQualifier, _propertyNameSpace));
 
                 // If no qualifier is set in pipeline use " " since that will resolve as <no qualifier> in Biztalk.
                 if (string.IsNullOrEmpty(_receiverIdQualifier))
-                    inmsg.Context.Promote("UNB3_2", _edifactPropertyNamespace, " ");
+                    inmsg.Context.Promote("DestinationPartyReceiverQualifier", _edifactPropertyNamespace, " ");
                 else
-                    inmsg.Context.Promote("UNB3_2", _edifactPropertyNamespace,
+                    inmsg.Context.Promote("DestinationPartyReceiverQualifier", _edifactPropertyNamespace,
                         inmsg.Context.Read(_receiverIdQualifier, _propertyNameSpace));
+
+                return inmsg;
             }
             catch
             {
                 throw;
             }
-
-            return inmsg;
         }
+
         #endregion
     }
 }
