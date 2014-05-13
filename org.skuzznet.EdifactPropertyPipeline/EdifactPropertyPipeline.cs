@@ -312,7 +312,7 @@ namespace org.skuzznet
                             outStream.Write(buffer, 0, bytesRead);
                         }
 
-                        byte[] buff = outStream.GetBuffer();
+                        byte[] buff = outStream.ToArray();
                         MemoryStream ms = new MemoryStream(buff);
                         ms.Position = 0;
                         inmsg.BodyPart.Data = ms;
