@@ -292,7 +292,7 @@ namespace org.skuzznet
         {
             #region Copy input stream
 
-            // Biztalk will not do property promotion in time if we do not touch the stream. Make a copy and write it back.
+            
             try
             {
                 IBaseMessagePart bodyPart = inmsg.BodyPart;
@@ -301,21 +301,23 @@ namespace org.skuzznet
                 {
                     Stream originalStream = bodyPart.GetOriginalDataStream();
 
+                    // Biztalk will not do property promotion in time if we do not touch the stream. Seems to be a quirk of how the send pipeline works.
+                    // If original message is returned no property promotion will happen before the EDI assembler component gets the message.
                     if (originalStream != null)
                     {
-                        byte[] buffer = new Byte[1024];
-                        MemoryStream outStream = new MemoryStream();
-                        int bytesRead = 1024;
-                        while (bytesRead != 0)
-                        {
-                            bytesRead = originalStream.Read(buffer, 0, buffer.Length);
-                            outStream.Write(buffer, 0, bytesRead);
-                        }
+                        StreamReader sReader = new StreamReader(originalStream);
+                        VirtualStream vStream = new VirtualStream();
+                        StreamWriter sWriter = new StreamWriter(vStream);
 
-                        byte[] buff = outStream.ToArray();
-                        MemoryStream ms = new MemoryStream(buff);
-                        ms.Position = 0;
-                        inmsg.BodyPart.Data = ms;
+                        //Write message body to a virutal memory stream 
+                        sWriter.Write(sReader.ReadToEnd());
+                        sWriter.Flush();
+                        sReader.Close();
+
+                        vStream.Seek(0, SeekOrigin.Begin); 
+
+                        pc.ResourceTracker.AddResource(vStream);
+                        inmsg.BodyPart.Data = vStream;
                     }
                 }
 
@@ -377,8 +379,13 @@ namespace org.skuzznet
                 }
                 return inmsg;
             }
-            catch
+            catch(Exception ex)
             {
+                if (inmsg != null)
+                {
+                    inmsg.SetErrorInfo(ex);
+                }
+
                 throw;
             }
         }
