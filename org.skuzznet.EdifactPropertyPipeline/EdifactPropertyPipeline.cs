@@ -292,7 +292,6 @@ namespace org.skuzznet
         {
             #region Copy input stream
 
-            
             try
             {
                 IBaseMessagePart bodyPart = inmsg.BodyPart;
@@ -322,6 +321,8 @@ namespace org.skuzznet
                 }
 
                 #endregion
+
+                #region Property promotion
 
                 // Set the identificators. Make sure to set " " if missing to get property promoted (will make Biztalk fail the file on missing party)
                 if (string.IsNullOrEmpty((string)inmsg.Context.Read(_senderId, _propertyNameSpace)))
@@ -378,6 +379,8 @@ namespace org.skuzznet
                     }
                 }
                 return inmsg;
+
+                #endregion
             }
             catch(Exception ex)
             {
