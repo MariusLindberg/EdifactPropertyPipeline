@@ -11,13 +11,13 @@ Put pipeline component in "Pre-Assemble" stage of a send pipeline. EDI assembler
 
 **Properties to set in pipeline:**
 
-* propertyNameSpace - Namespace of your property schema. (for where te properties below should be fetched).
+* propertyNameSpace - Namespace of your property schema. (for where the properties below should be fetched).
 * senderId - Name of promoted property that contains the sender ID.
 * senderIdQualifier - Name of promoted property that contains the sender ID qualifier.
 * receiverId - Name of promoted property that contains the receiver ID.
 * receiverIdQualifier - Name of promoted property that contains the receiver ID qualifier.
 
-## Techincal notes: ##
+## Technical notes: ##
 
 ### Properties used: ###
 
